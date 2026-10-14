@@ -1,33 +1,19 @@
-# 인증 정보 - 절대 커밋 금지
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
 .env
-credentials.json
-token.json
+.env.*
 
-# 임시 작업 공간
-.tmp/
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
-build/
-venv/
-.venv/
-env/
+# Editor
+.vscode/
+.idea/
+*.swp
 
 # OS
 .DS_Store
 Thumbs.db
-
-ads.txt
-robots.txt
-
-backend/.env
-backend/uploads/
-*.pyc
-
-
