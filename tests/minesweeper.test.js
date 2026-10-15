@@ -9,7 +9,7 @@ import {
   changeCeilState,
   remainMines,
   digitString,
-} from '../js/game.js';
+} from '../apps/minesweeper/game.js';
 
 // Build a started Beginner board with mines at exact indexes.
 function boardWithMines(mineIndexes, difficulty = 'Beginner') {

@@ -3,76 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Minesweeper</title>
-  <link rel="icon" href="assets/mine-icon.png">
-  <link rel="stylesheet" href="css/style.css">
+  <title>XP Games</title>
+  <link rel="icon" href="apps/solitaire/assets/sol-icon.png">
+  <link rel="stylesheet" href="shared/css/xp.css">
 </head>
 <body>
-  <div class="desktop-icon" title="Double-click to open">
-    <img src="assets/mine-icon.png" alt="">
-    <span>Minesweeper</span>
-  </div>
+  <script type="module">
+    import { startDesktop } from './shared/js/desktop.js';
+    import { apps } from './apps/registry.js';
 
-  <div class="window" style="left: 190px; top: 180px;">
-    <div class="title-bar">
-      <img class="title-bar__icon" src="assets/mine-icon.png" alt="">
-      <span class="title-bar__text">Minesweeper</span>
-      <div class="title-bar__buttons">
-        <button class="title-bar__min" aria-label="Minimize"></button>
-        <button class="title-bar__max" aria-label="Maximize" disabled></button>
-        <button class="title-bar__close" aria-label="Close"></button>
-      </div>
-    </div>
-
-    <div class="mine">
-      <div class="mine__options">
-        <div class="drop-down" data-menu="Game">
-          <div class="drop-down__label">Game</div>
-          <div class="drop-down__menu">
-            <div class="drop-down__row" data-item="New"><div class="drop-down__check"></div><div class="drop-down__text">New</div><span class="drop-down__hot-key">F2</span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__separator"></div>
-            <div class="drop-down__row" data-item="Beginner" data-difficulty="Beginner"><div class="drop-down__check"><img src="assets/checked.png" alt=""></div><div class="drop-down__text">Beginner</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__row" data-item="Intermediate" data-difficulty="Intermediate"><div class="drop-down__check"><img src="assets/checked.png" alt=""></div><div class="drop-down__text">Intermediate</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__row" data-item="Expert" data-difficulty="Expert"><div class="drop-down__check"><img src="assets/checked.png" alt=""></div><div class="drop-down__text">Expert</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__row" data-item="Custom..."><div class="drop-down__check"></div><div class="drop-down__text">Custom...</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__separator"></div>
-            <div class="drop-down__row checked" data-item="Marks (?)"><div class="drop-down__check"><img src="assets/checked.png" alt=""></div><div class="drop-down__text">Marks (?)</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__row checked" data-item="Color"><div class="drop-down__check"><img src="assets/checked.png" alt=""></div><div class="drop-down__text">Color</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__row" data-item="Sound"><div class="drop-down__check"></div><div class="drop-down__text">Sound</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__separator"></div>
-            <div class="drop-down__row" data-item="Best Times..."><div class="drop-down__check"></div><div class="drop-down__text">Best Times...</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__separator"></div>
-            <div class="drop-down__row" data-item="Exit"><div class="drop-down__check"></div><div class="drop-down__text">Exit</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-          </div>
-        </div>
-        <div class="drop-down" data-menu="Help">
-          <div class="drop-down__label">Help</div>
-          <div class="drop-down__menu">
-            <div class="drop-down__row" data-item="Contents"><div class="drop-down__check"></div><div class="drop-down__text">Contents</div><span class="drop-down__hot-key">F1</span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__row" data-item="Search for Help on..."><div class="drop-down__check"></div><div class="drop-down__text">Search for Help on...</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__row" data-item="Using Help"><div class="drop-down__check"></div><div class="drop-down__text">Using Help</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-            <div class="drop-down__separator"></div>
-            <div class="drop-down__row" data-item="About Minesweeper"><div class="drop-down__check"></div><div class="drop-down__text">About Minesweeper</div><span class="drop-down__hot-key"></span><div class="drop-down__arrow"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <section class="mine__content">
-        <div class="mine__score-bar">
-          <div class="mine__digits__outer" id="mine-digits"></div>
-          <div class="mine__face__outer">
-            <button class="mine__face">
-              <img alt="smile" src="assets/smile.png">
-              <img alt="smile" src="assets/smile.png">
-            </button>
-          </div>
-          <div class="mine__digits__outer" id="time-digits"></div>
-        </div>
-        <div class="mine__content__inner"></div>
-      </section>
-    </div>
-  </div>
-
-  <script type="module" src="js/main.js"></script>
+    startDesktop(apps);
+  </script>
 </body>
 </html>
