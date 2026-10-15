@@ -1,0 +1,46 @@
+/* 3D Pinball. Window chrome, menu bar and dialog controls come from
+   shared/css/xp.css. */
+.pinball__screen {
+  position: relative;
+  width: 600px;
+  height: 416px;
+  background: #000;
+}
+.pinball__screen canvas { display: block; image-rendering: pixelated; }
+.pinball__message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+.pinball__message[hidden] { display: none; }
+
+/* ---------- dialogs ---------- */
+.pinball-dialog { padding: 10px 12px 12px; }
+.pinball-dialog p { margin: 0 0 6px; }
+.pinball-dialog .dialog__buttons { margin-top: 10px; }
+
+.pinball-dialog--scores table { border-collapse: collapse; width: 300px; }
+.pinball-dialog--scores th { text-align: left; font-weight: normal; border-bottom: 1px solid #aca899; padding: 2px 6px; }
+.pinball-dialog--scores td { padding: 2px 6px; height: 20px; }
+.pinball-dialog--scores td:first-child { width: 36px; }
+.pinball-dialog--scores td:last-child, .pinball-dialog--scores th:last-child { text-align: right; }
+.pinball-dialog--scores input { width: 150px; font: inherit; }
+
+.pinball-dialog--controls { width: 470px; }
+.pinball-dialog--controls fieldset { margin-bottom: 8px; }
+.pinball-dialog--controls table { border-collapse: collapse; width: 100%; }
+.pinball-dialog--controls td { padding: 3px; }
+.pinball-dialog--controls .xp-button { width: 100%; }
+
+.pinball-dialog--confirm { width: 220px; text-align: center; }
+
+.pinball-dialog--about { display: grid; grid-template-columns: 40px 1fr; gap: 8px; width: 380px; }
+.pinball-dialog--about img { width: 32px; height: 32px; }
+.pinball-dialog--about .dialog__buttons { grid-column: 1 / 3; }

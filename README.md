@@ -1,9 +1,10 @@
 # XP Games
 
-Windows XP 스타일 바탕화면에서 돌아가는 고전 게임 모음입니다. 지금은 지뢰찾기와 솔리테어가 있습니다.
+Windows XP 스타일 바탕화면에서 돌아가는 고전 게임 모음입니다. 지금은 지뢰찾기, 솔리테어, 3D 핀볼이 있습니다.
 
 - **지뢰찾기:** [ShizukuIchi/winXP](https://github.com/ShizukuIchi/winXP)의 Minesweeper 앱을 REA로 분석해서, 같은 규칙으로 동작하도록 HTML/JS로 구현했습니다.
 - **솔리테어:** [DualBrain/Solitaire](https://github.com/DualBrain/Solitaire)(VB.NET WinForms)를 빌드한 뒤 REA로 어셈블리를 분석하고 소스와 대조해서, 같은 규칙으로 동작하도록 HTML/JS로 구현했습니다.
+- **3D 핀볼:** [webosbrew/SpaceCadetPinball](https://github.com/webosbrew/SpaceCadetPinball)(원본 `pinball.exe`의 C++ 디컴파일)의 엔진을 JS로 옮겼습니다. 게임 데이터는 저작권 때문에 포함하지 않으며, 원본 Windows XP의 파일을 직접 넣어야 합니다([3D 핀볼](#3d-핀볼) 참고).
 
 ## 실행
 
@@ -25,33 +26,57 @@ ES 모듈을 쓰기 때문에 `index.html`을 파일로 직접 열면(`file://`)
 | 제목 표시줄 끌기 | 창 이동 |
 | 최소화 버튼 | 창 숨기기 (게임 상태 유지) |
 | 닫기 버튼 / Exit 메뉴 | 창 닫기. 다시 열면 새 게임으로 시작 |
-| 창 클릭 | 그 창을 맨 앞으로 |
+| 창 클릭 | 그 창을 맨 앞으로 가져오고 활성 창으로 만듦. 다른 창은 제목 표시줄이 흐려짐 |
+| 바탕화면 클릭 | 모든 창을 비활성으로 |
 
 ## 구조
 
 ```
-index.html                  바탕화면 페이지 (공용 셸만 불러옴)
-serve.mjs                   로컬 정적 파일 서버 (포트 3000)
-shared/                     모든 앱이 같이 쓰는 부분
-  css/xp.css                바탕화면, 아이콘, XP 창, 메뉴 막대, 대화상자 스타일
-  js/desktop.js             아이콘 표시, 앱 열기/최소화/닫기
-  js/window.js              XP 창(끌기, 버튼, 앞으로 가져오기), 모달 대화상자
-  js/menu.js                드롭다운 메뉴 막대 (winXP DropDowns 이식)
-  assets/                   메뉴 체크 표시 이미지, winXP 라이선스
-apps/                       앱별로 따로 쓰는 부분
-  registry.js               바탕화면에 올릴 앱 목록
-  minesweeper/
-    app.js                  렌더링, 마우스 입력, 메뉴
-    game.js                 순수 게임 로직 (원본 reducer와 1:1 대응)
-    style.css, assets/
-  solitaire/
-    app.js                  렌더링, 마우스 입력, 메뉴, 타이머
-    game.js                 순수 게임 로직 (원본 GameForm.vb 규칙)
-    layout.js               판 좌표와 클릭/드롭 판정 (원본 FindHit, HoverTest)
-    win-effect.js           승리 애니메이션 (원본 Win, WinAlgorithm)
-    dialogs.js              Options, Deck, Deal Again, About 대화상자
-    style.css, assets/
-tests/                      앱별 로직 테스트
+xp-games/
+├── shared/                     # 모든 앱이 같이 쓰는 부분
+│   ├── css/
+│   │   └── xp.css              # 바탕화면, 아이콘, XP 창, 메뉴 막대, 대화상자 스타일
+│   ├── js/
+│   │   ├── desktop.js          # 아이콘 표시, 앱 열기/최소화/닫기
+│   │   ├── window.js           # XP 창(끌기, 버튼, 앞으로 가져오기, 활성 창 추적), 모달 대화상자
+│   │   └── menu.js             # 드롭다운 메뉴 막대와 하위 메뉴 (winXP DropDowns 이식)
+│   └── assets/                 # 메뉴 체크 표시 이미지, winXP 라이선스
+├── apps/                       # 앱별로 따로 쓰는 부분
+│   ├── registry.js             # 바탕화면에 올릴 앱 목록
+│   ├── minesweeper/
+│   │   ├── app.js              # 렌더링, 마우스 입력, 메뉴
+│   │   ├── game.js             # 순수 게임 로직 (원본 reducer와 1:1 대응)
+│   │   ├── style.css
+│   │   └── assets/
+│   ├── solitaire/
+│   │   ├── app.js              # 렌더링, 마우스 입력, 메뉴, 타이머
+│   │   ├── game.js             # 순수 게임 로직 (원본 GameForm.vb 규칙)
+│   │   ├── layout.js           # 판 좌표와 클릭/드롭 판정 (원본 FindHit, HoverTest)
+│   │   ├── win-effect.js       # 승리 애니메이션 (원본 Win, WinAlgorithm)
+│   │   ├── dialogs.js          # Options, Deck, Deal Again, About 대화상자
+│   │   ├── style.css
+│   │   └── assets/
+│   └── pinball/
+│       ├── app.js              # 창, 메뉴, 입력, 프레임 루프, 데이터 읽기
+│       ├── dialogs.js          # High Scores, Player Controls, About 대화상자
+│       ├── engine/             # 원본 C++ 파일과 1:1로 대응하는 엔진
+│       │   ├── dat.js          # PINBALL.DAT 읽기 (partman, GroupData, 팔레트)
+│       │   ├── render.js       # 소프트웨어 렌더러 (gdrv, zdrv, render, proj)
+│       │   ├── edges.js        # 충돌 격자, 선/원/플리퍼 (TEdgeManager, TLine, TFlipperEdge ...)
+│       │   ├── components.js   # 테이블 부품 (TBall, TFlipper, TPlunger, TBumper ... TPinballTable)
+│       │   ├── control.js      # 미션, 점수, 조명 규칙 (control.cpp)
+│       │   ├── pb.js           # 게임 루프와 상태 (pb, score, nudge, high_score)
+│       │   ├── loader.js
+│       │   ├── timer.js
+│       │   ├── maths.js
+│       │   ├── strings.js
+│       │   └── pe.js
+│       ├── data/               # 사용자가 넣는 원본 데이터 (git 제외)
+│       ├── style.css
+│       └── assets/
+├── tests/                      # 앱별 로직 테스트
+├── index.html                  # 바탕화면 페이지 (공용 셸만 불러옴)
+└── serve.mjs                   # 로컬 정적 파일 서버 (포트 3000)
 ```
 
 ### 앱 추가하기
@@ -156,7 +181,59 @@ tests/                      앱별 로직 테스트
 - **창 크기:** 원본은 창 크기를 바꿀 수 있었지만 이 버전은 원본 기본 크기에 맞춘 고정 크기입니다. 카드 배치 간격은 원본이 기본 크기에서 계산하는 값과 같습니다.
 - **미구현 항목:** Help의 Contents, Search, How to Use Help는 Windows 도움말 파일(`.chm`)을 여는 기능이라 비워 두었습니다. About은 Windows 기본 정보 창 대신 간단한 대화상자로 보여 줍니다.
 
+## 3D 핀볼
+
+### 게임 데이터 넣기
+
+테이블 그림, 충돌 형상, 부품 배치는 모두 Microsoft의 `PINBALL.DAT`에 들어 있어서 저장소에 포함하지 않았습니다. Windows XP의 `C:\Program Files\Windows NT\Pinball\`에서 아래 파일을 `apps/pinball/data/`에 복사합니다. 이 폴더는 git에서 제외되므로, 사이트를 배포할 때는 서버에 따로 올려야 합니다.
+
+| 파일 | 필요 여부 | 용도 |
+|---|---|---|
+| `PINBALL.DAT` | 필수 | 테이블 전체 |
+| `PINBALL.EXE` | 권장 | 메시지용 비트맵 글꼴(`PBMSG_FT` 리소스). 없으면 흰색 기본 글꼴로 표시 |
+| `*.WAV` | 권장 | 소리는 재생하지 않고 길이만 읽음. 일부 타이머가 효과음 길이만큼 기다리기 때문 |
+
+파일 이름은 대문자든 소문자든 상관없습니다.
+
+### 분석 방법
+
+저장소에는 실행 파일이 없고, 이 PC에는 C++ 빌드 도구가 없어서 REA로 분석할 바이너리를 만들 수 없었습니다. 그래서 원본 `pinball.exe`를 디컴파일한 엔진 소스를 직접 읽어 옮겼습니다. 사용자 `pinball.exe`는 REA의 PE 리소스 분석(`inspect_pe_resources`)으로 확인했습니다. 메시지 글꼴이 `PBMSG_FT` RCDATA 리소스(21,702바이트)에 있고, 디컴파일 저장소의 `PB_MSGFT.bin`과 SHA-256이 같습니다. 이 PC에는 디스어셈블러(Ghidra/IDA/objdump)가 설정되지 않아 코드 수준의 대조는 하지 못했습니다.
+
+엔진 구조는 이렇습니다.
+
+- **데이터:** `PINBALL.DAT`은 그룹 목록이고, 그룹마다 그림, 깊이 맵, 실수 배열(충돌 형상, 물리 값), 정수 배열(부품 목록)이 들어 있습니다.
+- **화면:** 600×416 화면에 부품 그림을 깊이 맵으로 겹쳐 그리고, 바뀐 영역만 다시 그립니다.
+- **물리:** 초당 120번 갱신합니다. 공을 광선처럼 쏘아 10×15 격자 안의 선, 원, 움직이는 플리퍼와 부딪히는지 계산합니다.
+- **규칙:** 부품이 메시지 코드를 보내면(예: 63은 공이 부딪힘) `control` 모듈이 점수, 조명, 미션 상태를 바꿉니다.
+
+### 조작법
+
+| 입력 | 동작 |
+|---|---|
+| Z / 마우스 왼쪽 | 왼쪽 플리퍼 |
+| / / 마우스 오른쪽 | 오른쪽 플리퍼 |
+| 스페이스 / 마우스 가운데 | 플런저 (누르고 있다가 놓기) |
+| X / . / ↑ | 테이블 왼쪽 / 오른쪽 / 아래쪽 흔들기 (너무 많이 흔들면 TILT) |
+| F2 | 새 게임 |
+| F3 | 일시정지 / 계속 |
+| F8 | Player Controls (키 바꾸기) |
+| Esc | 창 최소화 (원본 동작) |
+| Game 메뉴 | New Game, Launch Ball, Pause/Resume, High Scores, Demo, Exit |
+| Options 메뉴 | Select Players (1~4명), Player Controls |
+
+창이 비활성이면 게임이 멈춥니다(원본도 포커스를 잃으면 멈춤). 치트 코드(`hidden test`, `1max`, `bmax`, `gmax`, `rmax`)도 원본처럼 입력할 수 있고, 쓰면 그 게임의 점수는 최고 점수에 오르지 않습니다.
+
+### 원본과의 차이
+
+- **소리:** 재생하지 않습니다. WAV 파일이 있으면 길이만 읽어 원본과 같은 대기 시간을 씁니다.
+- **실수 정밀도:** 원본은 32비트 `float`, 이 버전은 64비트 숫자로 계산합니다. 공 궤적이 아주 미세하게 다를 수 있습니다.
+- **범퍼 업그레이드 감소:** 원본 `BumperGroupControl`은 범위를 벗어난 메모리를 읽습니다. 의도대로 첫 번째 범퍼의 상태를 확인하도록 했습니다.
+- **격자 배치 안전장치:** 선을 격자에 배치하는 반복문에 횟수 제한을 두었습니다. 실수 정밀도 차이로 끝 칸을 지나치면 무한 반복할 수 있어서입니다.
+- **창:** 크기 고정(600×416)입니다. 원본의 Full Screen, Sound/Music, 해상도 선택, Help Topics 메뉴는 넣지 않았습니다.
+- **최고 점수와 설정:** 레지스트리/ini 대신 브라우저 `localStorage`에 저장합니다.
+
 ## 라이선스
 
 - 지뢰찾기 이미지와 XP 창/메뉴 스타일: winXP 저장소(MIT, © 2019 Shizuku Yang). `apps/minesweeper/assets/LICENSE-winXP`, `shared/assets/LICENSE-winXP`
 - 솔리테어 카드 이미지와 아이콘: DualBrain/Solitaire(MIT, © Cory Smith). `apps/solitaire/assets/LICENSE-Solitaire`
+- 3D 핀볼 엔진: SpaceCadetPinball(MIT, © 2020-2021 Andrey Muzychenko)을 옮긴 코드와 아이콘. `apps/pinball/LICENSE-SpaceCadetPinball`. 게임 데이터(`PINBALL.DAT` 등)는 Microsoft 소유이며 포함하지 않습니다.

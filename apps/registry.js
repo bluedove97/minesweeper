@@ -23,4 +23,14 @@ export const apps = [
     y: 40,
     load: () => import('./solitaire/app.js'),
   },
+  {
+    id: 'pinball',
+    label: '3D Pinball',
+    title: '3D Pinball for Windows - Space Cadet',
+    icon: 'apps/pinball/assets/pinball-icon.png',
+    style: 'apps/pinball/style.css',
+    x: 330,
+    y: 60,
+    load: () => import('./pinball/app.js'),
+  },
 ];

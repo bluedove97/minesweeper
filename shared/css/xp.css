@@ -104,6 +104,18 @@ body {
 .title-bar__close::before { transform: rotate(45deg); }
 .title-bar__close::after { transform: rotate(-45deg); }
 
+/* Inactive window: the paler XP caption. */
+.window.inactive { background: #7a96df; box-shadow: inset -1px -1px #6582d0, inset 1px 1px #7a96df, 2px 2px 8px rgba(0, 0, 0, 0.3); }
+.window.inactive .title-bar {
+  background: linear-gradient(
+    to bottom,
+    #7697e7 0%, #7e9ee3 3%, #94afe8 6%, #97b4e9 8%, #82a5e4 14%, #7c9fe2 17%,
+    #7996de 25%, #7b99e1 56%, #82a9e9 81%, #80a5e7 89%, #7b96e1 94%, #7a93df 100%
+  );
+}
+.window.inactive .title-bar__text { color: #d8e4f8; text-shadow: none; }
+.window.inactive .title-bar__buttons button { filter: saturate(0.5) brightness(1.1); }
+
 /* Blocks the owner window while one of its dialogs is open. */
 .window__modal-cover {
   position: absolute;
@@ -149,6 +161,20 @@ body {
 .drop-down__text { grid-column: 2; white-space: nowrap; padding-right: 8px; }
 .drop-down__hot-key { grid-column: 3; white-space: nowrap; padding-right: 2px; }
 .drop-down__arrow { grid-column: 4; }
+.drop-down__row.has-sub .drop-down__arrow::after {
+  content: '';
+  display: inline-block;
+  margin-left: 5px;
+  border: 4px solid transparent;
+  border-left-color: currentColor;
+  border-right-width: 0;
+}
+.drop-down__submenu {
+  position: absolute;
+  display: none;
+  left: calc(100% - 3px);
+}
+.drop-down__submenu.open { display: grid; }
 .drop-down__separator {
   grid-column: 1 / 5;
   height: 7px;
