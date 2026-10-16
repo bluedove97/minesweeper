@@ -284,24 +284,25 @@ export function mount(root, ctx) {
 
   const insideBoard = p => p.x >= 0 && p.y >= 0 && p.x < BOARD_W && p.y < BOARD_H;
 
-  board.addEventListener('mousedown', e => {
-    const p = boardPoint(e);
+  // The press/move/release/double functions take board coordinates and are
+  // shared by the mouse handlers and the touch handlers below.
+
+  function pressAt(p, button) {
     last = p;
     if (state.won) return;
     const pile = pileAt(state, p.x, p.y);
-    press = { pile, button: e.button };
-    if (pile?.pile === 'deck' && e.button === 0 && deckHit(state, p.x - DECK.x, p.y - DECK.y)) {
+    press = { pile, button };
+    if (pile?.pile === 'deck' && button === 0 && deckHit(state, p.x - DECK.x, p.y - DECK.y)) {
       setState(drawFromDeck(state));
     }
-  });
+  }
 
-  const onMouseMove = e => {
-    const p = boardPoint(e);
+  function moveTo(p, leftHeld) {
     if (drag) {
       drag.box.x += p.x - last.x;
       drag.box.y += p.y - last.y;
       renderDrag();
-    } else if (press && press.button === 0 && (e.buttons & 1) && press.pile && press.pile.pile !== 'deck') {
+    } else if (press && press.button === 0 && leftHeld && press.pile && press.pile.pile !== 'deck') {
       // DoMouseMove: the first move with the button down starts the clock and
       // tries to pick up the card under the previous mouse position.
       setState(startTimer(state));
@@ -317,10 +318,10 @@ export function mount(root, ctx) {
       }
     }
     last = p;
-  };
+  }
 
-  const onMouseUp = e => {
-    const p = boardPoint(e);
+  // secondClick: the release is the second click of a double click.
+  function releaseAt(p, button, secondClick) {
     if (drag) {
       const { source, box } = drag;
       drag = null;
@@ -331,12 +332,12 @@ export function mount(root, ctx) {
       }
       if (next !== state) setState(next);
       else render();
-    } else if (e.button === 2 && press && insideBoard(p)) {
+    } else if (button === 2 && press && insideBoard(p)) {
       setState(moveAllUp(state));
     }
     // WinForms Click on a tableau pile: pressed and released over the same
     // pile. The second click of a double click raises DoubleClick instead.
-    if (press?.pile?.pile === 'stack' && e.button === 0 && e.detail !== 2) {
+    if (press?.pile?.pile === 'stack' && button === 0 && !secondClick) {
       const r = stackRect(state, press.pile.index);
       if (p.x >= r.x && p.x < r.x + r.w && p.y >= r.y && p.y < r.y + r.h) {
         setState(flipTop(state, press.pile.index));
@@ -344,18 +345,68 @@ export function mount(root, ctx) {
     }
     press = null;
     last = p;
-  };
+  }
 
-  board.addEventListener('dblclick', e => {
-    const p = boardPoint(e);
+  function doubleAt(p) {
     const pile = pileAt(state, p.x, p.y);
     if (!pile || (pile.pile !== 'stack' && pile.pile !== 'waste')) return;
     const r = pileRect(state, pile);
     if (overTopCard(state, pile, p.x - r.x, p.y - r.y)) setState(sendToFoundation(state, pile));
-  });
+  }
+
+  board.addEventListener('mousedown', e => pressAt(boardPoint(e), e.button));
+  const onMouseMove = e => moveTo(boardPoint(e), (e.buttons & 1) !== 0);
+  const onMouseUp = e => releaseAt(boardPoint(e), e.button, e.detail === 2);
+  board.addEventListener('dblclick', e => doubleAt(boardPoint(e)));
 
   window.addEventListener('mousemove', onMouseMove);
   window.addEventListener('mouseup', onMouseUp);
+
+  // ---------- touch handling ----------
+  // A touch acts as the left button. Dragging only starts once the finger has
+  // moved DRAG_TOLERANCE px, so a shaky tap still counts as a click, and a
+  // second tap on the same spot within DOUBLE_TAP_MS is a double click.
+  // preventDefault on pointerdown keeps the browser from also sending the
+  // mouse events handled above.
+
+  const DRAG_TOLERANCE = 6;
+  const DOUBLE_TAP_MS = 400;
+  let touch = null; // { pointerId, start, moved }
+  let lastTap = null; // { time, p }
+
+  board.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || touch) return;
+    e.preventDefault();
+    const p = boardPoint(e);
+    touch = { pointerId: e.pointerId, start: p, moved: false };
+    pressAt(p, 0);
+  });
+
+  const onTouchMove = e => {
+    if (!touch || e.pointerId !== touch.pointerId) return;
+    const p = boardPoint(e);
+    if (!touch.moved && Math.hypot(p.x - touch.start.x, p.y - touch.start.y) < DRAG_TOLERANCE) return;
+    touch.moved = true;
+    moveTo(p, true);
+  };
+
+  const onTouchUp = e => {
+    if (!touch || e.pointerId !== touch.pointerId) return;
+    const { start, moved } = touch;
+    touch = null;
+    const p = moved ? boardPoint(e) : start;
+    const now = e.timeStamp;
+    const double = !moved && e.type === 'pointerup' && lastTap
+      && now - lastTap.time < DOUBLE_TAP_MS
+      && Math.hypot(p.x - lastTap.p.x, p.y - lastTap.p.y) < DRAG_TOLERANCE * 3;
+    releaseAt(p, 0, double);
+    if (double) doubleAt(p);
+    lastTap = moved || double ? null : { time: now, p };
+  };
+
+  window.addEventListener('pointermove', onTouchMove);
+  window.addEventListener('pointerup', onTouchUp);
+  window.addEventListener('pointercancel', onTouchUp);
 
   // ---------- menu bar ----------
 
@@ -383,6 +434,9 @@ export function mount(root, ctx) {
       stopWinEffect();
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('pointermove', onTouchMove);
+      window.removeEventListener('pointerup', onTouchUp);
+      window.removeEventListener('pointercancel', onTouchUp);
       menu.destroy();
       sol.remove();
     },

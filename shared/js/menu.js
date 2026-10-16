@@ -42,14 +42,15 @@ export function createMenuBar(menus, onSelect) {
 
   el.querySelectorAll('.drop-down').forEach(dd => {
     const label = dd.querySelector('.drop-down__label');
-    label.addEventListener('mousedown', () => setOpenMenu(dd.dataset.menu));
-    label.addEventListener('mouseenter', () => {
+    label.addEventListener('pointerdown', () => setOpenMenu(dd.dataset.menu));
+    label.addEventListener('pointerenter', () => {
       if (openMenu) setOpenMenu(dd.dataset.menu);
     });
   });
 
   // Hovering a row opens its submenu, and hovering a sibling row closes it.
-  el.addEventListener('mouseover', e => {
+  // With touch, pointerover fires when the row is tapped.
+  el.addEventListener('pointerover', e => {
     const row = e.target.closest('.drop-down__row');
     if (!row || row.parentElement.classList.contains('drop-down__submenu')) return;
     closeSubmenus();
@@ -70,13 +71,13 @@ export function createMenuBar(menus, onSelect) {
   const closeOutside = e => {
     if (!el.contains(e.target)) setOpenMenu('');
   };
-  window.addEventListener('mouseup', closeOutside);
+  window.addEventListener('pointerup', closeOutside);
 
   const row = id => el.querySelector(`[data-item="${CSS.escape(id)}"]`);
   return {
     el,
     setChecked(id, value) { row(id)?.classList.toggle('checked', value); },
     setDisabled(id, value) { row(id)?.classList.toggle('disabled', value); },
-    destroy() { window.removeEventListener('mouseup', closeOutside); },
+    destroy() { window.removeEventListener('pointerup', closeOutside); },
   };
 }

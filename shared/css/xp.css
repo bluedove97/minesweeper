@@ -49,6 +49,7 @@ body {
 .window[hidden] { display: none; }
 
 .title-bar {
+  touch-action: none; /* let the title bar drag the window instead of scrolling */
   height: 28px;
   display: flex;
   align-items: center;

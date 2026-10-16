@@ -35,7 +35,7 @@ let globalsInstalled = false;
 function installGlobals() {
   if (globalsInstalled) return;
   globalsInstalled = true;
-  document.addEventListener('mousedown', e => {
+  document.addEventListener('pointerdown', e => {
     if (!e.target.closest('.window')) setActive(null);
   }, true);
   window.addEventListener('blur', () => {
@@ -49,20 +49,26 @@ function installGlobals() {
 }
 
 function makeDraggable(win, handle) {
-  handle.addEventListener('mousedown', e => {
+  // Pointer events so the title bar drags with touch as well as the mouse.
+  handle.addEventListener('pointerdown', e => {
     if (e.button !== 0 || e.target.closest('button')) return;
+    const { pointerId } = e;
     const startX = e.clientX - win.offsetLeft;
     const startY = e.clientY - win.offsetTop;
     const move = ev => {
+      if (ev.pointerId !== pointerId) return;
       win.style.left = `${ev.clientX - startX}px`;
       win.style.top = `${Math.max(0, ev.clientY - startY)}px`;
     };
-    const up = () => {
-      window.removeEventListener('mousemove', move);
-      window.removeEventListener('mouseup', up);
+    const up = ev => {
+      if (ev.pointerId !== pointerId) return;
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
     };
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', up);
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
   });
 }
 
@@ -91,7 +97,7 @@ export function createWindow({ title, icon, x = 100, y = 100, buttons = ['min', 
 
   el.querySelector('.title-bar__min')?.addEventListener('click', () => onMinimize?.());
   el.querySelector('.title-bar__close')?.addEventListener('click', () => onClose?.());
-  el.addEventListener('mousedown', e => {
+  el.addEventListener('pointerdown', e => {
     // A click on a window blocked by its dialog goes to the dialog instead.
     if (e.target.closest('.window__modal-cover')) return;
     bringToFront(el);
@@ -161,7 +167,7 @@ export function openDialog(owner, { title, content, onEnter, onCancel }) {
   dialog.el.style.top = `${Math.max(0, ownerBox.top + (ownerBox.height - box.height) / 2)}px`;
 
   // Clicking the blocked owner brings the dialog back to the front.
-  cover.addEventListener('mousedown', e => {
+  cover.addEventListener('pointerdown', e => {
     e.stopPropagation();
     dialog.show();
   });

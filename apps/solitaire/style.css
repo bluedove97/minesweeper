@@ -6,6 +6,8 @@
   position: relative;
   overflow: hidden;
   background: #008000; /* Color.Green */
+  touch-action: none; /* touches drag cards instead of scrolling/zooming */
+  -webkit-touch-callout: none;
 }
 .sol__board img { position: absolute; pointer-events: none; }
 .sol__pile { position: absolute; }

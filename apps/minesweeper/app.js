@@ -227,6 +227,68 @@ export function mount(root, ctx) {
   };
   window.addEventListener('mouseup', onWindowMouseUp);
 
+  // ---------- touch handling ----------
+  // Tap opens a cell (or, on an open number, its neighbours like a left+right
+  // click). Holding for LONG_PRESS_MS acts as a right click: cover -> flag -> ? -> cover.
+  // preventDefault on pointerdown keeps the browser from also sending the mouse
+  // events handled above.
+
+  const LONG_PRESS_MS = 400;
+  const MOVE_TOLERANCE = 10;
+  let touch = null; // { pointerId, index, x, y, timer }
+
+  function endTouch() {
+    if (!touch) return;
+    clearTimeout(touch.timer);
+    touch = null;
+    setOpenBehavior({ index: -1, behavior: '' });
+    setMouseDownContent(false);
+  }
+
+  grid.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse') return;
+    e.preventDefault();
+    if (touch || state.status === 'won' || state.status === 'died') return;
+    const index = ceilIndex(e);
+    if (index === -1) return;
+    const open = state.ceils[index].state === 'open';
+    touch = {
+      pointerId: e.pointerId,
+      index,
+      x: e.clientX,
+      y: e.clientY,
+      timer: setTimeout(() => {
+        const { index: i } = touch;
+        endTouch();
+        const next = changeCeilState(state, i);
+        if (next !== state) {
+          navigator.vibrate?.(30);
+          setState(next);
+        }
+      }, LONG_PRESS_MS),
+    };
+    setMouseDownContent(true);
+    setOpenBehavior({ index, behavior: open ? 'multi' : 'single' });
+  });
+
+  const onTouchMove = e => {
+    if (!touch || e.pointerId !== touch.pointerId) return;
+    if (Math.hypot(e.clientX - touch.x, e.clientY - touch.y) > MOVE_TOLERANCE) endTouch();
+  };
+
+  const onTouchUp = e => {
+    if (!touch || e.pointerId !== touch.pointerId) return;
+    const { index } = touch;
+    endTouch();
+    if (e.type === 'pointercancel') return;
+    if (state.ceils[index].state === 'open') setState(openCeils(state, index));
+    else setState(openCeil(state, index));
+  };
+
+  window.addEventListener('pointermove', onTouchMove);
+  window.addEventListener('pointerup', onTouchUp);
+  window.addEventListener('pointercancel', onTouchUp);
+
   faceBtn.addEventListener('click', () => reset());
 
   // ---------- menu bar ----------
@@ -248,7 +310,11 @@ export function mount(root, ctx) {
   return {
     unmount() {
       clearInterval(timer);
+      clearTimeout(touch?.timer);
       window.removeEventListener('mouseup', onWindowMouseUp);
+      window.removeEventListener('pointermove', onTouchMove);
+      window.removeEventListener('pointerup', onTouchUp);
+      window.removeEventListener('pointercancel', onTouchUp);
       menu.destroy();
       mine.remove();
     },

@@ -59,6 +59,8 @@
 .mine__face:active:hover img:nth-child(2) { display: block; }
 
 .mine__content__inner {
+  touch-action: none; /* long press flags a cell instead of scrolling/zooming */
+  -webkit-touch-callout: none; /* no iOS image menu on long press */
   display: grid;
   border-top: rgb(128, 128, 128) solid 3px;
   border-left: rgb(128, 128, 128) solid 3px;

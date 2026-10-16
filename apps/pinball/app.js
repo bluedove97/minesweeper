@@ -153,6 +153,7 @@ export function mount(root, ctx) {
   el.innerHTML = `
     <div class="pinball__screen">
       <canvas width="${WIDTH}" height="${HEIGHT}"></canvas>
+      <div class="pinball__touch-zones"></div>
       <div class="pinball__message">Loading...</div>
     </div>`;
   el.prepend(menu.el);
@@ -160,6 +161,7 @@ export function mount(root, ctx) {
 
   const canvas = el.querySelector('canvas');
   const message = el.querySelector('.pinball__message');
+  const zoneLayer = el.querySelector('.pinball__touch-zones');
   const g = canvas.getContext('2d');
   const image = g.createImageData(WIDTH, HEIGHT);
   const pixels = new Uint32Array(image.data.buffer);
@@ -237,6 +239,7 @@ export function mount(root, ctx) {
     pb.reset_table();
     pb.firsttime_setup();
     pb.replay_level(0);
+    buildTouchZones();
     message.hidden = true;
     started = true;
     present();
@@ -454,11 +457,81 @@ export function mount(root, ctx) {
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
 
+  // ---------- touch controls ----------
+  // Rectangles in canvas pixels, built from the flipper and plunger sprites
+  // once the table has loaded: the lower table left of the gap between the
+  // flippers works the left flipper, from the gap to the plunger lane the
+  // right flipper, and the plunger lane pulls the plunger back while held and
+  // launches on release, so a longer press launches harder (like holding Space).
+  // Each finger is tracked separately, so both flippers can be held at once.
+
+  const FLIPPER_ZONE_ABOVE = 60;
+  const PLUNGER_ZONE_ABOVE = 80;
+  let zones = [];
+  const touches = new Map(); // pointerId -> input id
+
+  function buildTouchZones() {
+    const table = pb.MainTable;
+    const left = table.FlipperL.RenderSprite.BoundingRect;
+    const right = table.FlipperR.RenderSprite.BoundingRect;
+    const plunger = table.Plunger.RenderSprite.BoundingRect;
+    const flipperTop = Math.min(left.YPosition, right.YPosition) - FLIPPER_ZONE_ABOVE;
+    const gap = Math.round((left.XPosition + left.Width + right.XPosition) / 2);
+    const lane = plunger.XPosition - 8;
+    const plungerTop = plunger.YPosition - PLUNGER_ZONE_ABOVE;
+    zones = [
+      { id: 'LeftFlipper', x: 0, y: flipperTop, w: gap, h: HEIGHT - flipperTop },
+      { id: 'RightFlipper', x: gap, y: flipperTop, w: lane - gap, h: HEIGHT - flipperTop },
+      { id: 'Plunger', x: lane, y: plungerTop, w: table.Width - lane, h: HEIGHT - plungerTop },
+    ];
+    zoneLayer.innerHTML = zones
+      .map(z => `<div class="pinball__touch-zone" style="left:${z.x}px;top:${z.y}px;width:${z.w}px;height:${z.h}px"></div>`)
+      .join('');
+  }
+
+  function zoneAt(e) {
+    const box = canvas.getBoundingClientRect();
+    const x = ((e.clientX - box.left) * WIDTH) / box.width;
+    const y = ((e.clientY - box.top) * HEIGHT) / box.height;
+    return zones.find(z => x >= z.x && x < z.x + z.w && y >= z.y && y < z.y + z.h);
+  }
+
+  const held = id => [...touches.values()].includes(id);
+
+  const onTouchDown = e => {
+    if (e.pointerType === 'mouse') return;
+    e.preventDefault(); // no emulated mousedown, which would work the left flipper
+    if (!started || !ctx.window.isActive()) return;
+    const zone = zoneAt(e);
+    // Like a mouse press, a touch anywhere also ends the game-over countdown.
+    if (!zone) {
+      pb.InputDown({}, '');
+      return;
+    }
+    const wasHeld = held(zone.id);
+    touches.set(e.pointerId, zone.id);
+    if (!wasHeld) pb.InputDown({ [zone.id]: true }, '');
+  };
+
+  const onTouchUp = e => {
+    const id = touches.get(e.pointerId);
+    if (!id) return;
+    touches.delete(e.pointerId);
+    if (started && !held(id)) pb.InputUp({ [id]: true });
+  };
+
+  canvas.addEventListener('pointerdown', onTouchDown);
+  window.addEventListener('pointerup', onTouchUp);
+  window.addEventListener('pointercancel', onTouchUp);
+
   // Losing focus releases the flippers and plunger and stops the clock.
   const offActive = ctx.window.onActiveChange(isActive => {
     if (!started) return;
     if (isActive) noTimeLoss = true;
-    else pb.loose_focus();
+    else {
+      touches.clear();
+      pb.loose_focus();
+    }
   });
 
   start();
@@ -472,6 +545,9 @@ export function mount(root, ctx) {
       window.removeEventListener('mouseup', onMouseUp);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
+      canvas.removeEventListener('pointerdown', onTouchDown);
+      window.removeEventListener('pointerup', onTouchUp);
+      window.removeEventListener('pointercancel', onTouchUp);
       menu.destroy();
       if (started) pb.uninit();
       control.reset();

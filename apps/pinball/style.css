@@ -6,7 +6,24 @@
   height: 416px;
   background: #000;
 }
-.pinball__screen canvas { display: block; image-rendering: pixelated; }
+.pinball__screen canvas {
+  display: block;
+  image-rendering: pixelated;
+  touch-action: none; /* touches work the flippers/plunger instead of scrolling */
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch zones for the flippers and plunger: faint outlines, touch screens only. */
+.pinball__touch-zones { position: absolute; inset: 0; pointer-events: none; display: none; }
+.pinball__touch-zone {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+}
+@media (hover: none) and (pointer: coarse) {
+  .pinball__touch-zones { display: block; }
+}
 .pinball__message {
   position: absolute;
   inset: 0;
