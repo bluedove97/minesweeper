@@ -29,6 +29,8 @@ body {
   text-align: center;
   text-shadow: 1px 1px 1px #000;
   cursor: default;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .desktop-icon img { width: 32px; height: 32px; image-rendering: pixelated; }
 .desktop-icon.selected img { filter: brightness(0.6) sepia(1) hue-rotate(180deg) saturate(4); }

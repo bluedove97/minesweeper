@@ -72,14 +72,23 @@ export function startDesktop(apps) {
     icon.title = 'Double-click to open';
     icon.innerHTML = `<img src="${app.icon}" alt=""><span></span>`;
     icon.querySelector('span').textContent = app.label;
-    icon.addEventListener('mousedown', () => {
+    // Mobile browsers don't fire dblclick (double-tap zooms instead), so a
+    // touch/pen tap opens the app with a single tap; mice keep double-click.
+    let lastPointerType = 'mouse';
+    icon.addEventListener('pointerdown', e => {
+      lastPointerType = e.pointerType;
       iconBar.querySelectorAll('.desktop-icon').forEach(i => i.classList.toggle('selected', i === icon));
     });
-    icon.addEventListener('dblclick', () => openApp(app));
+    icon.addEventListener('click', () => {
+      if (lastPointerType !== 'mouse') openApp(app);
+    });
+    icon.addEventListener('dblclick', () => {
+      if (lastPointerType === 'mouse') openApp(app);
+    });
     iconBar.appendChild(icon);
   }
 
-  document.addEventListener('mousedown', e => {
+  document.addEventListener('pointerdown', e => {
     if (!iconBar.contains(e.target)) {
       iconBar.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
     }
