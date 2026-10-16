@@ -33,4 +33,15 @@ export const apps = [
     y: 170,
     load: () => import('./pinball/app.js'),
   },
+  {
+    id: 'about',
+    label: 'About',
+    title: 'About XP Games',
+    icon: 'apps/about/assets/about-icon.svg',
+    style: 'apps/about/style.css',
+    buttons: ['close'],
+    x: 200,
+    y: 120,
+    load: () => import('./about/app.js'),
+  },
 ];

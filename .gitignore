@@ -21,3 +21,9 @@ Thumbs.db
 # Original 3D Pinball data (copyrighted, supplied by the user)
 apps/pinball/data/*
 !apps/pinball/data/README.md
+
+
+# priv
+ads.txt
+robots.txt
+index.bak

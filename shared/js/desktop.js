@@ -3,7 +3,8 @@
 // unmounts the app, so the next open starts a fresh instance.
 //
 // An app entry (see apps/registry.js) is
-//   { id, label, title, icon, style, x, y, load: () => import(...) }
+//   { id, label, title, icon, style, buttons?, x, y, load: () => import(...) }
+// (buttons optionally picks the title bar buttons, as in createWindow),
 // and the loaded module exports mount(body, ctx) -> { unmount() }, where
 // ctx = { window, close() }.
 
@@ -56,6 +57,7 @@ export function startDesktop(apps) {
         icon: app.icon,
         x: app.x,
         y: app.y,
+        buttons: app.buttons,
         onMinimize: () => win.hide(),
         onClose: () => closeApp(app.id),
       });

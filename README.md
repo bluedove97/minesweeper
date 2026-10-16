@@ -54,6 +54,7 @@ xp-games/
 │   └── assets/                 # 메뉴 체크 표시 이미지, winXP 라이선스
 ├── apps/                       # 앱별로 따로 쓰는 부분
 │   ├── registry.js             # 바탕화면에 올릴 앱 목록
+│   ├── about/                  # About XP Games 창 (소개 문구, GitHub 링크)
 │   ├── minesweeper/
 │   │   ├── app.js              # 렌더링, 마우스/터치 입력, 메뉴
 │   │   ├── game.js             # 순수 게임 로직 (원본 reducer와 1:1 대응)
@@ -99,6 +100,8 @@ xp-games/
 
 ## 지뢰찾기
 
+<img src="images/minesweeper.gif">
+
 ### 조작법
 
 #### PC
@@ -142,6 +145,8 @@ xp-games/
 - **미구현 항목:** Custom, Sound, Best Times, Help 메뉴와 F2 단축키는 원본에서도 동작하지 않아서 똑같이 비워 두었습니다.
 
 ## 솔리테어
+
+<img src="images/solitaire.gif">
 
 ### 분석 방법
 
@@ -222,6 +227,8 @@ xp-games/
 
 ## 3D 핀볼
 
+<img src="images/pinball.gif">
+
 ### 게임 데이터 넣기
 
 테이블 그림, 충돌 형상, 부품 배치는 모두 Microsoft의 `PINBALL.DAT`에 들어 있어서 저장소에 포함하지 않았습니다. Windows XP의 `C:\Program Files\Windows NT\Pinball\`에서 아래 파일을 `apps/pinball/data/`에 복사합니다. 이 폴더는 git에서 제외되므로, 사이트를 배포할 때는 서버에 따로 올려야 합니다.
@@ -288,6 +295,8 @@ xp-games/
 - **최고 점수와 설정:** 레지스트리/ini 대신 브라우저 `localStorage`에 저장합니다.
 
 ## 라이선스
+
+이 저장소의 코드는 MIT 라이선스입니다([LICENSE](LICENSE)). 다른 프로젝트에서 가져온 부분은 각 프로젝트의 라이선스를 따릅니다.
 
 - 지뢰찾기 이미지와 XP 창/메뉴 스타일: winXP 저장소(MIT, © 2019 Shizuku Yang). `apps/minesweeper/assets/LICENSE-winXP`, `shared/assets/LICENSE-winXP`
 - 솔리테어 카드 이미지와 아이콘: DualBrain/Solitaire(MIT, © Cory Smith). `apps/solitaire/assets/LICENSE-Solitaire`
