@@ -6,6 +6,10 @@ Windows XP 스타일 바탕화면에서 돌아가는 고전 게임 모음입니�
 - **솔리테어:** [DualBrain/Solitaire](https://github.com/DualBrain/Solitaire)(VB.NET WinForms)를 빌드한 뒤 REA로 어셈블리를 분석하고 소스와 대조해서, 같은 규칙으로 동작하도록 HTML/JS로 구현했습니다.
 - **3D 핀볼:** [webosbrew/SpaceCadetPinball](https://github.com/webosbrew/SpaceCadetPinball)(원본 `pinball.exe`의 C++ 디컴파일)의 엔진을 JS로 옮겼습니다. 게임 데이터는 저작권 때문에 포함하지 않으며, 원본 Windows XP의 파일을 직접 넣어야 합니다([3D 핀볼](#3d-핀볼) 참고).
 
+## 온라인 데모
+
+브라우저에서 바로 확인 할 수 있습니다: <a href="https://xpgames.proj.pe.kr" target="_blank" rel="noopener noreferrer">https://xpgames.proj.pe.kr</a>
+
 ## 실행
 
 ```
@@ -72,7 +76,7 @@ xp-games/
 │       ├── app.js              # 창, 메뉴, 키/마우스/터치 입력, 프레임 루프, 데이터 읽기
 │       ├── dialogs.js          # High Scores, Player Controls, About 대화상자
 │       ├── engine/             # 원본 C++ 파일과 1:1로 대응하는 엔진
-│       │   ├── dat.js          # PINBALL.DAT 읽기 (partman, GroupData, 팔레트)
+│       │   ├── dat.js          # pinball.dat 읽기 (partman, GroupData, 팔레트)
 │       │   ├── render.js       # 소프트웨어 렌더러 (gdrv, zdrv, render, proj)
 │       │   ├── edges.js        # 충돌 격자, 선/원/플리퍼 (TEdgeManager, TLine, TFlipperEdge ...)
 │       │   ├── components.js   # 테이블 부품 (TBall, TFlipper, TPlunger, TBumper ... TPinballTable)
@@ -231,13 +235,13 @@ xp-games/
 
 ### 게임 데이터 넣기
 
-테이블 그림, 충돌 형상, 부품 배치는 모두 Microsoft의 `PINBALL.DAT`에 들어 있어서 저장소에 포함하지 않았습니다. Windows XP의 `C:\Program Files\Windows NT\Pinball\`에서 아래 파일을 `apps/pinball/data/`에 복사합니다. 이 폴더는 git에서 제외되므로, 사이트를 배포할 때는 서버에 따로 올려야 합니다.
+테이블 그림, 충돌 형상, 부품 배치는 모두 Microsoft의 `pinball.dat`에 들어 있어서 저장소에 포함하지 않았습니다. Windows XP의 `C:\Program Files\Windows NT\Pinball\`에서 아래 파일을 `apps/pinball/data/`에 복사합니다. 이 폴더는 git에서 제외되므로, 사이트를 배포할 때는 서버에 따로 올려야 합니다.
 
 | 파일 | 필요 여부 | 용도 |
 |---|---|---|
-| `PINBALL.DAT` | 필수 | 테이블 전체 |
-| `PINBALL.EXE` | 권장 | 메시지용 비트맵 글꼴(`PBMSG_FT` 리소스). 없으면 흰색 기본 글꼴로 표시 |
-| `*.WAV` | 권장 | 소리는 재생하지 않고 길이만 읽음. 일부 타이머가 효과음 길이만큼 기다리기 때문 |
+| `pinball.dat` | 필수 | 테이블 전체 |
+| `pinball.exe` | 권장 | 메시지용 비트맵 글꼴(`PBMSG_FT` 리소스). 없으면 흰색 기본 글꼴로 표시 |
+| `*.wav` | 권장 | 소리는 재생하지 않고 길이만 읽음. 일부 타이머가 효과음 길이만큼 기다리기 때문 |
 
 파일 이름은 대문자든 소문자든 상관없습니다.
 
@@ -247,7 +251,7 @@ xp-games/
 
 엔진 구조는 이렇습니다.
 
-- **데이터:** `PINBALL.DAT`은 그룹 목록이고, 그룹마다 그림, 깊이 맵, 실수 배열(충돌 형상, 물리 값), 정수 배열(부품 목록)이 들어 있습니다.
+- **데이터:** `pinball.dat`은 그룹 목록이고, 그룹마다 그림, 깊이 맵, 실수 배열(충돌 형상, 물리 값), 정수 배열(부품 목록)이 들어 있습니다.
 - **화면:** 600×416 화면에 부품 그림을 깊이 맵으로 겹쳐 그리고, 바뀐 영역만 다시 그립니다.
 - **물리:** 초당 120번 갱신합니다. 공을 광선처럼 쏘아 10×15 격자 안의 선, 원, 움직이는 플리퍼와 부딪히는지 계산합니다.
 - **규칙:** 부품이 메시지 코드를 보내면(예: 63은 공이 부딪힘) `control` 모듈이 점수, 조명, 미션 상태를 바꿉니다.
@@ -300,4 +304,4 @@ xp-games/
 
 - 지뢰찾기 이미지와 XP 창/메뉴 스타일: winXP 저장소(MIT, © 2019 Shizuku Yang). `apps/minesweeper/assets/LICENSE-winXP`, `shared/assets/LICENSE-winXP`
 - 솔리테어 카드 이미지와 아이콘: DualBrain/Solitaire(MIT, © Cory Smith). `apps/solitaire/assets/LICENSE-Solitaire`
-- 3D 핀볼 엔진: SpaceCadetPinball(MIT, © 2020-2021 Andrey Muzychenko)을 옮긴 코드와 아이콘. `apps/pinball/LICENSE-SpaceCadetPinball`. 게임 데이터(`PINBALL.DAT` 등)는 Microsoft 소유이며 포함하지 않습니다.
+- 3D 핀볼 엔진: SpaceCadetPinball(MIT, © 2020-2021 Andrey Muzychenko)을 옮긴 코드와 아이콘. `apps/pinball/LICENSE-SpaceCadetPinball`. 게임 데이터(`pinball.dat` 등)는 Microsoft 소유이며 포함하지 않습니다.

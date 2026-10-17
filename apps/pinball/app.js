@@ -86,7 +86,8 @@ function wavDuration(bytes) {
 
 // Windows file names are case-insensitive; a web server may not be.
 async function fetchAnyCase(name) {
-  for (const candidate of new Set([name, name.toUpperCase(), name.toLowerCase()])) {
+  // Lower case first: the usual spelling of the copied files.
+  for (const candidate of new Set([name.toLowerCase(), name, name.toUpperCase()])) {
     const bytes = await fetchOptional(candidate);
     if (bytes) return bytes;
   }
